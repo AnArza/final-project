@@ -12,16 +12,20 @@ class CategoryView(View):
         categories = Category.objects.all()
         data = []
         for category in categories:
-            data.append(({'code': category.code, 'name': category.name, 'creative': category.creative.name}))
+            data.append(
+                (
+                    {"code": category.code, "name": category.name, "creative": category.creative.name}
+                )
+            )
         return data_status(data)
 
     def post(self, request):
         data = json.loads(request.body)
-        if 'code' in data and 'name' in data and 'creative' in data:
+        if "code" in data and "name" in data and "creative" in data:
             category = Category.objects.create(
-                code=data['code'],
-                name=data['name'],
-                creative=Creative.objects.get(id=data['creative'])
+                code=data["code"],
+                name=data["name"],
+                creative=Creative.objects.get(id=data["creative"])
             )
         else:
             return failed_status("invalid_post_data")
@@ -44,7 +48,8 @@ class CategoryView(View):
         except ObjectDoesNotExist:
             return failed_status("object_not_found")
         return data_status(
-            {"code": category.code, "name": category.name, 'creative': category.creative.name})
+            {"code": category.code, "name": category.name, 'creative': category.creative.name}
+        )
 
     @staticmethod
     def delete(request, code):

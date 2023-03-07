@@ -8,8 +8,8 @@ class Config(models.Model):
         (2, 2),
     ]
     mode_choices = [
-        ('fr', 'free'),
-        ('sc', 'script')
+        ("fr", "free"),
+        ("sc", "script")
     ]
 
     impression_total = models.IntegerField()

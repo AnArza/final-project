@@ -20,10 +20,10 @@ from .api.category import CategoryView
 from .api.creative import CreativeView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('creatives/', CreativeView.as_view()),
-    path('creatives/<int:id>/', CreativeView.check_view),
-    path('categories/', CategoryView.as_view()),
-    path('categories/<str:code>/', CategoryView.check_view),
+    path("admin/", admin.site.urls),
+    path("creatives/", CreativeView.as_view()),
+    path("creatives/<int:id>/", CreativeView.check_view),
+    path("categories/", CategoryView.as_view()),
+    path("categories/<str:code>/", CategoryView.check_view),
 
 ]

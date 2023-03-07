@@ -5,9 +5,9 @@ from django.http import HttpResponse
 
 def data_status(data):
     return HttpResponse(
-        json.dumps({'data': data, 'status': 'ok'}),
+        json.dumps({"data": data, "status": "ok"}),
         status=200,
-        content_type='application/json'
+        content_type="application/json"
     )
 
 

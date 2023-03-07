@@ -12,15 +12,17 @@ class CreativeView(View):
         creatives = Creative.objects.all()
         data = []
         for creative in creatives:
-            data.append({'id': creative.id, 'external_id': creative.external_id, 'name': creative.name})
+            data.append(
+                {"id": creative.id, "external_id": creative.external_id, "name": creative.name}
+            )
         return data_status(data)
 
     def post(self, request):
         data = json.loads(request.body)
-        if 'external_id' in data and 'name' in data:
+        if "external_id" in data and "name" in data:
             creative = Creative.objects.create(
-                external_id=data['external_id'],
-                name=data['name'],
+                external_id=data["external_id"],
+                name=data["name"],
             )
         else:
             return failed_status("invalid_post_data")
@@ -41,7 +43,8 @@ class CreativeView(View):
         except ObjectDoesNotExist:
             return failed_status("obj_not_found")
         return data_status(
-            {'id': creative.id, 'external_id': creative.external_id, 'name': creative.name})
+            {"id": creative.id, "external_id": creative.external_id, "name": creative.name}
+        )
 
     @staticmethod
     def delete(request, id):
