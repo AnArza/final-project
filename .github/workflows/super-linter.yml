@@ -30,6 +30,10 @@ jobs:
     - name: Install dependencies
       run: |
         pip install django-environ
+        
+    - name: Set environment variables
+      run: |
+        echo "VARIABLE_NAME=value" >> $GITHUB_ENV
 
 
     - name: Run tests
