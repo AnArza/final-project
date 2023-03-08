@@ -18,6 +18,9 @@ from django.urls import path
 
 from .api.category import CategoryView
 from .api.creative import CreativeView
+from .api.bid import BidView
+from .api.config import ConfigView
+from .api.bid import BidView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -25,5 +28,8 @@ urlpatterns = [
     path("creatives/<int:id>/", CreativeView.check_view),
     path("categories/", CategoryView.as_view()),
     path("categories/<str:code>/", CategoryView.check_view),
-
+    path("rtb/bid/", BidView.as_view()),
+    path("game/configure/", ConfigView.as_view()),
+    path("game/configure/delete/", ConfigView.delete),
+    path("rtb/bid/", BidView.as_view())
 ]
