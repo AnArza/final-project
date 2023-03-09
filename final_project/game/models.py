@@ -13,6 +13,7 @@ class Config(models.Model):
     frequency_capping = models.IntegerField(validators=[MinValueValidator(1)])
 
 
+#
 class Campaign(models.Model):
     name = models.CharField(max_length=100)
     budget = models.IntegerField()

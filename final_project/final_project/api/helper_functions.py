@@ -1,23 +1,23 @@
 import json
 
-from django.http import HttpResponse
+from django.http import JsonResponse
 
 
 def data_status(data):
-    return HttpResponse(
+    return JsonResponse(
         json.dumps({"data": data, "status": "ok"}),
         status=200,
-        content_type="application/json"
+        content_type="application/json", safe=False
     )
 
 
 def ok_status():
-    return HttpResponse(
-        json.dumps({"status": "ok"}), status=200, content_type="application/json"
+    return JsonResponse(
+        json.dumps({"status": "ok"}), status=200, content_type="application/json", safe=False
     )
 
 
 def failed_status(status):
-    return HttpResponse(
-        json.dumps({"status": status}), status=404, content_type="application/json"
+    return JsonResponse(
+        json.dumps({"status": status}), status=404, content_type="application/json", safe=False
     )

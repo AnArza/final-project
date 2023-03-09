@@ -2,6 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import View
 from game.models import Config
 from .helper_functions import ok_status, failed_status, data_status
+import json
 
 
 class ConfigView(View):
