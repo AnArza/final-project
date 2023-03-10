@@ -13,24 +13,23 @@ class CategoryView(View):
         data = []
         for category in categories:
             data.append(
-                (
-                    {"code": category.code, "name": category.name, "creative": category.creative.name}
-                )
+                {"code": category.code, "name": category.name}
             )
         return data_status(data)
 
     def post(self, request):
         data = json.loads(request.body)
-        if "code" in data and "name" in data and "creative" in data:
+        response = []
+        if "code" in data and "name" in data:
             category = Category.objects.create(
                 code=data["code"],
-                name=data["name"],
-                creative=Creative.objects.get(id=data["creative"])
+                name=data["name"]
             )
         else:
             return failed_status("invalid_post_data")
         category.save()
-        return ok_status()
+        response.append({"code": category.code, "name": category.name})
+        return data_status(response)
 
     @staticmethod
     def check_view(request, code):
@@ -48,7 +47,7 @@ class CategoryView(View):
         except ObjectDoesNotExist:
             return failed_status("object_not_found")
         return data_status(
-            {"code": category.code, "name": category.name, 'creative': category.creative.name}
+            {"code": category.code, "name": category.name}
         )
 
     @staticmethod

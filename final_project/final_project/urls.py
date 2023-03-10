@@ -25,14 +25,15 @@ from .api.bid import BidView
 
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
-    path("creatives/", CreativeView.as_view(), name="creatives"),
-    path("creatives/<int:id>/", CreativeView.check_view, name="creatives_id"),
-    path("categories/", CategoryView.as_view(), name="categories"),
-    path("categories/<str:code>/", CategoryView.check_view, name="categories_id"),
+    path("api/creatives/", CreativeView.as_view(), name="creatives"),
+    path("api/creatives/<int:id>/", CreativeView.check_view, name="creatives_id"),
+    path("api/categories/", CategoryView.as_view(), name="categories"),
+    path("api/categories/<str:code>/", CategoryView.check_view, name="categories_id"),
     path("rtb/bid/", BidView.as_view(), name="bid"),
     path("campaign/<int:id>/", CampaignView.check_view, name="campaign_id"),
     path("campaign/", CampaignView.as_view(), name="campaign"),
     path("game/configure/", ConfigView.as_view(), name="config"),
     path("game/configure/delete/", ConfigView.delete, name="config_delete"),
+
     # path("rtb/bid/", BidView.as_view())
 ]

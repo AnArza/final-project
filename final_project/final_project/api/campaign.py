@@ -17,6 +17,7 @@ class CampaignView(View):
 
     def post(self, request):
         data = json.loads(request.body)
+        response = []
         if 'name' in data and 'budget' in data:
             campaign = Campaign.objects.create(
                 name=data['name'],
@@ -25,7 +26,8 @@ class CampaignView(View):
         else:
             return failed_status("invalid_post_data")
         campaign.save()
-        return ok_status()
+        response.append({'id': campaign.id, 'name': campaign.name, 'budget': campaign.budget})
+        return data_status(response)
 
     @staticmethod
     def check_view(request, id):
