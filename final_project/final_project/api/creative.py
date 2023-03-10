@@ -1,9 +1,17 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.files.storage import default_storage
 from django.views.generic import View
 import json
-
+from django.shortcuts import render
+import binascii
 from game.models import Creative, Campaign, Category
 from .helper_functions import data_status, ok_status, failed_status
+import base64
+from io import BytesIO
+from django.core.files import File
+import requests
+from django.core.files.base import ContentFile
+from PIL import Image
 
 
 class CreativeView(View):
@@ -30,22 +38,30 @@ class CreativeView(View):
                 external_id=data['external_id'],
                 name=data['name'],
                 campaign=Campaign.objects.get(id=data['campaign']['id']),
-                file=data['file']
             )
             for cat in data['categories']:
                 creative.categories.add(Category.objects.get(code=cat['code']))
-
+            base64_str = data['file']
+            base64_str = base64_str + "=" * ((4 - len(base64_str) % 4) % 4)
+            decoded_image = base64.b64decode(base64_str)
+            file_name = 'my_image.jpg'
+            file_path = default_storage.save(file_name, ContentFile(decoded_image))
+            file_url = default_storage.url(file_path)
+            creative.file = file_path
+            creative.url = file_url
+            with Image.open(creative.file) as img:
+                creative.width, creative.height = img.size
             response.append({
                 'id': creative.id,
                 'external_id': creative.external_id,
                 'name': creative.name,
                 'categories': [{"id": c.id, "code": c.code} for c in creative.categories.all()],
+                # 'size': 1,
                 'campaign': {
                     'id': creative.campaign.id,
                     'name': creative.campaign.name
                 },
-                # this is the image url that we should generate
-                'url': ''
+                'url': file_url
 
             })
         except KeyError:

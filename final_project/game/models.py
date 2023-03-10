@@ -36,10 +36,12 @@ class Creative(models.Model):
     id = models.AutoField(primary_key=True)
     external_id = models.CharField(max_length=100, unique=True)
     name = models.CharField(max_length=100)
-    file = models.TextField()
+    file = models.ImageField()
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     categories = models.ManyToManyField(Category)
-
+    url = models.URLField()
+    width = models.FloatField(default=0)
+    height = models.FloatField(default=0)
 
 class History(models.Model):
     click_prob = models.CharField(max_length=15)
