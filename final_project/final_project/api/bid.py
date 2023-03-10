@@ -4,7 +4,7 @@ import json
 
 from game.models import Bid, Creative
 from game.models import Category
-from .helper_functions import data_status, ok_status, failed_status
+from .helper_functions import data_status, ok_status, failed_status, has_intersection
 
 
 class BidView(View):
@@ -27,21 +27,34 @@ class BidView(View):
     def post(self, request):
         data = json.loads(request.body)
         response = []
-        image_url = 'temporary_eshutyun.jpg'  # creative serving zibil service
         try:
-            float(data['click']['prob'])
-            float(data['conv']['prob'])
-            if type(data['id']) != str or type(data['click']['prob']) != str or type(
-                    data['conv']['prob']) != str or type(data['imp']['banner']['w']) != int or type(
-                data['imp']['banner']['h']) != int or type(data['site']['domain']) != str or type(
-                data['ssp']['id']) != str or type(
-                data['user']['id']) != str:
-                raise TypeError
-            # we gotta generate these categories of creatives
-            # by making sure that they are not in the blocked categories
-            cat = []
-            for creative in Creative.objects.all():
-                pass
+            categories = Category.objects.all()
+
+            if not isinstance(data['imp']['banner']['w'], (int, float)) or not isinstance(data['imp']['banner']['h'],
+                                                                                          (int, float)) or type(
+                    data['ssp']['id']) != str:
+                raise TypeError("wrong type")
+
+            creative = None
+            for cr in Creative.objects.all():
+                if cr.width == data['imp']['banner']['w'] and cr.height == data['imp']['banner']['h']:
+                    lst = []
+                    for c in cr.categories.all():
+                        lst.append(c.code)
+                    if has_intersection(data['bcat'], lst) is False:
+                        creative = cr
+                        break
+            if creative is None:
+                for cr in Creative.objects.all():
+                    lst = []
+                    for c in cr.categories.all():
+                        lst.append(c.code)
+                    # print(data['bcat'])
+                    if has_intersection(data['bcat'], lst) is False:
+                        creative = cr
+                        break
+            # print(creative.external_id)
+
             bid = Bid.objects.create(
                 id=data['id'],
                 click_prob=data['click']['prob'],
@@ -56,9 +69,7 @@ class BidView(View):
             return failed_status("type error")
         except ValueError:
             return failed_status("value error")
-        # also not sure about external id
-        # optimize price
         bid.price = 5
-        response.append({"external_id": bid.id, "price": bid.price, "image_url": image_url, "cat": cat})
+        response.append({"external_id": bid.id, "price": bid.price, "image_url": creative.url, "cat": lst})
         bid.save()
         return data_status(response)

@@ -22,3 +22,8 @@ def failed_status(status):
     return HttpResponse(
         json.dumps({"status": status}), status=404, content_type="application/json"
     )
+
+def has_intersection(arr1, arr2):
+    set1 = set(arr1)
+    set2 = set(arr2)
+    return bool(set1 & set2)  # returns True if the intersection is non-empty, False otherwise
