@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import View
 import json
 
-from game.models import Creative, Campaign
+from game.models import Creative, Campaign, Category
 from .helper_functions import data_status, ok_status, failed_status
 
 
@@ -24,25 +24,36 @@ class CreativeView(View):
 
     def post(self, request):
         data = json.loads(request.body)
-        # if 'external_id' in data and 'name' in data and 'compaign_id' in data:
-        #     creative = Creative.objects.create(
-        #         external_id=data['external_id'],
-        #         name=data['name'],
-        #     )
-        # else:
-        #     return failed_status("invalid_post_data")
+        response = []
         try:
             creative = Creative.objects.create(
                 external_id=data['external_id'],
                 name=data['name'],
-                campaign=Campaign.objects.get(id=data['campaign_id'])
+                campaign=Campaign.objects.get(id=data['campaign']['id']),
+                file=data['file']
             )
+            for cat in data['categories']:
+                creative.categories.add(Category.objects.get(code=cat['code']))
+
+            response.append({
+                'id': creative.id,
+                'external_id': creative.external_id,
+                'name': creative.name,
+                'categories': [{"id": c.id, "code": c.code} for c in creative.categories.all()],
+                'campaign': {
+                    'id': creative.campaign.id,
+                    'name': creative.campaign.name
+                },
+                # this is the image url that we should generate
+                'url': ''
+
+            })
         except KeyError:
             return failed_status("missed parameter")
         except TypeError:
             return failed_status("wrong type")
         creative.save()
-        return ok_status()
+        return data_status(response)
 
     @staticmethod
     def check_view(request, external_id):
@@ -63,9 +74,9 @@ class CreativeView(View):
             {'external_id': creative.external_id, 'name': creative.name})
 
     @staticmethod
-    def delete(request, external_id):
+    def delete(request, id):
         try:
-            creative = Creative.objects.get(external_id=external_id)
+            creative = Creative.objects.get(id=id)
         except ObjectDoesNotExist:
             return failed_status("obj_not_found")
         creative.delete()
