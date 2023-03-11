@@ -1,54 +1,62 @@
-# import json
+import json
 
-# from django.test import TestCase
-# from django.urls import reverse
-# from rest_framework import status
-# from rest_framework.test import APIClient
-# from ..models import Campaign
+from django.test import TestCase
+from rest_framework.test import APIClient
+from ..models import Campaign
+from django.urls import reverse
 
 
-# class MyAPITestCase(TestCase):
-#     def setUp(self):
-#         self.client = APIClient()
-#         self.my_object = Campaign.objects.create(name='test object', budget=12)
-#         self.url = reverse('campaign')
-#         self.url_detailed = reverse('campaign_id', args=[1])
+class CampaignTest(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('campaign')
+        self.url_detailed = reverse('campaign_id', args=[0])
+        self.objects = [
+            {'name': 'campaign1', 'budget': 10},
+            {'name': 'campaign2', 'budget': 20},
+        ]
+        for obj in self.objects:
+            Campaign.objects.create(**obj)
 
-#     def test_get_api(self):
-#         response = self.client.get(self.url)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         expected_content = json.loads(
-#             '{"data": [{"id": 1, "name": "test object", "budget": 12}], "status": "ok"}')
+    def test_create_object(self):
+        data = {'name': 'campaign3', 'budget': 30}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, 201)
+        obj = Campaign.objects.filter(name=data['name']).first()
+        self.assertIsNotNone(obj)
+        self.assertEqual(obj.budget, data['budget'])
 
-#         self.assertJSONEqual(response.json(), expected_content)
+    def test_list_objects(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        response_json = response.json()
+        response_json = json.loads(response_json)
+        self.assertEqual(len(response_json), len(self.objects))
+        for i, obj in enumerate(self.objects):
+            self.assertEqual(response_json['data'][i]['name'], obj['name'])
+            self.assertEqual(response_json['data'][i]['budget'], obj['budget'])
 
-#     def test_get_id_api(self):
-#         response = self.client.get(self.url_detailed)
-#         self.assertEqual(response.status_code, status.HTTP_200_OK)
-#         expected_content = json.loads(
-#             '{"data": {"id": 1, "name": "test object", "budget": 12}, "status": "ok"}')
+    def test_get_object_by_id(self):
+        obj = Campaign.objects.first()
+        response = self.client.get(f'{self.url}{obj.id}/')
+        response_json = response.json()
+        response_json = json.loads(response_json)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_json['data']['name'], obj.name)
+        self.assertEqual(response_json['data']['budget'], obj.budget)
 
-#         self.assertJSONEqual(response.json(), expected_content)
+    def test_update_object(self):
+        obj = Campaign.objects.first()
+        data = {'name': 'new name', 'budget': 5}
+        response = self.client.patch(f'{self.url}{obj.id}/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+        obj.refresh_from_db()
+        print(obj.name)
+        self.assertEqual(obj.name, data['name'])
+        self.assertEqual(obj.budget, data['budget'])
 
-#     def test_post_api(self):
-#         # response = self.client.create(name='test object', budget=12)
-#         data = {"name": "test object", "budget": 12}
-#         response = self.client.post(self.url, data, format='json')
-#         self.assertEqual(response.status_code, 200)
-
-#     def test_post_no_data_api(self):
-#         # response = self.client.create(name='test object', budget=12)
-#         data = {}
-#         response = self.client.post(self.url, data, format='json')
-#         self.assertEqual(response.status_code, 404)
-#         # self.assertEqual(Campaign.objects.count(), 0)
-
-#     # def test_delete_api(self):
-#     #     response = self.client.delete(self.url_detailed, json.loads('{"id": 1}'))
-#     #     self.assertEqual(response.status_code, 200)
-
-#     # def test_edit_api(self):
-#     #     data = {"name": "Updated Object"}
-#     #     response = self.client.put(self.url_detailed, data, format='json')
-#     #     print(response.json())
-#     #     self.assertEqual(response.status_code, 200)
+    def test_delete_object(self):
+        obj = Campaign.objects.first()
+        response = self.client.delete(f'{self.url}{obj.id}/')
+        self.assertEqual(response.status_code, 204)
+        self.assertIsNone(Campaign.objects.filter(id=obj.id).first())

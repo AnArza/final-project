@@ -3,7 +3,7 @@ from django.views.generic import View
 import json
 
 from game.models import Campaign
-from .helper_functions import data_status, ok_status, failed_status
+from .helper_functions import data_status, ok_status, failed_status, success_status_post, data_status_post, success_status_delete
 
 
 class CampaignView(View):
@@ -24,10 +24,10 @@ class CampaignView(View):
                 budget=data['budget']
             )
         else:
-            return failed_status("invalid_post_data")
+            return failed_status("xinvalid_post_data")
         campaign.save()
         response.append({'id': campaign.id, 'name': campaign.name, 'budget': campaign.budget})
-        return data_status(response)
+        return data_status_post(response)
 
     @staticmethod
     def check_view(request, id):
@@ -53,7 +53,7 @@ class CampaignView(View):
         except ObjectDoesNotExist:
             return failed_status("obj_not_found")
         campaign.delete()
-        return ok_status()
+        return success_status_delete()
 
     @staticmethod
     def edit(request, id):
