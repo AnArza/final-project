@@ -3,25 +3,25 @@ from django.core.validators import MinValueValidator
 
 
 class Config(models.Model):
-    impressions_total = models.IntegerField(validators=[MinValueValidator(0)])
-    auction_type = models.IntegerField(validators=[MinValueValidator(0)])
+    impressions_total = models.PositiveIntegerField()
+    auction_type = models.PositiveIntegerField()
     mode = models.CharField(max_length=10)
     budget = models.IntegerField()
-    impression_revenue = models.IntegerField(validators=[MinValueValidator(0)])
-    click_revenue = models.IntegerField(validators=[MinValueValidator(0)])
-    conversion_revenue = models.IntegerField(validators=[MinValueValidator(0)])
+    impression_revenue = models.PositiveIntegerField()
+    click_revenue = models.PositiveIntegerField()
+    conversion_revenue = models.PositiveIntegerField()
     frequency_capping = models.IntegerField(validators=[MinValueValidator(1)])
 
 
 class Campaign(models.Model):
     name = models.CharField(max_length=100)
-    budget = models.IntegerField()
+    budget = models.PositiveIntegerField()
 
 
 class Bid(models.Model):
     id = models.CharField(max_length=30, primary_key=True)
-    click_prob = models.CharField(max_length=15)
-    conv_prob = models.FloatField(max_length=15)
+    click_prob = models.FloatField()
+    conv_prob = models.FloatField()
     site_domain = models.CharField(max_length=100)
     user_id = models.CharField(max_length=100)
     price = models.FloatField(validators=[MinValueValidator(0)])
@@ -43,10 +43,10 @@ class Creative(models.Model):
     width = models.FloatField(default=0)
     height = models.FloatField(default=0)
 
+
 class History(models.Model):
-    click_prob = models.CharField(max_length=15)
-    conv_prob = models.FloatField(max_length=15)
+    click_prob = models.FloatField()
+    conv_prob = models.FloatField()
     price = models.FloatField(validators=[MinValueValidator(0)])
     win = models.BooleanField(default=False)
-    # clicked
     budget = models.FloatField()

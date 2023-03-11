@@ -2,14 +2,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.files.storage import default_storage
 from django.views.generic import View
 import json
-from django.shortcuts import render
-import binascii
 from game.models import Creative, Campaign, Category
 from .helper_functions import data_status, ok_status, failed_status
 import base64
-from io import BytesIO
-from django.core.files import File
-import requests
 from django.core.files.base import ContentFile
 from PIL import Image
 
@@ -21,6 +16,7 @@ class CreativeView(View):
         data = []
         for creative in creatives:
             data.append({
+                'id': creative.id,
                 'external_id': creative.external_id,
                 'name': creative.name,
                 'campaign': {
@@ -40,7 +36,16 @@ class CreativeView(View):
                 campaign=Campaign.objects.get(id=data['campaign']['id']),
             )
             for cat in data['categories']:
-                creative.categories.add(Category.objects.get(code=cat['code']))
+                for cr in Creative.objects.filter(id__lt=creative.id):
+                    print(Category.objects.get(code=cat['code']))
+                    if Category.objects.get(code=cat['code']) not in cr.categories.all():
+                        creative.categories.add(Category.objects.get(code=cat['code']))
+                    else:
+                        creative.delete()
+                        return failed_status("category not available")
+            if not Creative.objects.all():
+                for cat in data['categories']:
+                    creative.categories.add(Category.objects.get(code=cat['code']))
             base64_str = data['file']
             base64_str = base64_str + "=" * ((4 - len(base64_str) % 4) % 4)
             decoded_image = base64.b64decode(base64_str)
@@ -56,7 +61,6 @@ class CreativeView(View):
                 'external_id': creative.external_id,
                 'name': creative.name,
                 'categories': [{"id": c.id, "code": c.code} for c in creative.categories.all()],
-                # 'size': 1,
                 'campaign': {
                     'id': creative.campaign.id,
                     'name': creative.campaign.name
@@ -72,18 +76,18 @@ class CreativeView(View):
         return data_status(response)
 
     @staticmethod
-    def check_view(request, external_id):
+    def check_view(request, id):
         if request.method == "GET":
-            return CreativeView.get_by_id(request, external_id)
+            return CreativeView.get_by_id(request, id)
         if request.method == "DELETE":
-            return CreativeView.delete(request, external_id)
+            return CreativeView.delete(request, id)
         if request.method == "PATCH":
-            return CreativeView.edit(request, external_id)
+            return CreativeView.edit(request, id)
 
     @staticmethod
-    def get_by_id(request, external_id):
+    def get_by_id(request, id):
         try:
-            creative = Creative.objects.get(external_id=external_id)
+            creative = Creative.objects.get(id=id)
         except ObjectDoesNotExist:
             return failed_status("obj_not_found")
         return data_status(

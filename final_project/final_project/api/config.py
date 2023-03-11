@@ -4,6 +4,8 @@ from game.models import Config
 from .helper_functions import ok_status, failed_status, data_status
 import json
 
+from .load_categories import load_categories
+
 
 class ConfigView(View):
 
@@ -38,10 +40,11 @@ class ConfigView(View):
                 conversion_revenue=data['conversion_revenue'],
                 frequency_capping=data['conversion_revenue']
             )
+            load_categories("static/Content-Taxonomy-1.0.xlsx")
         except KeyError:
             return failed_status("invalid_post_data")
-        except TypeError:
-            return failed_status("type error happened")
+        # except TypeError:
+        #     return failed_status("type error happened")
 
         config.save()
         return ok_status()

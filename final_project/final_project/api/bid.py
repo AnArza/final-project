@@ -2,9 +2,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import View
 import json
 
-from game.models import Bid, Creative
+from game.models import Bid, Creative, Campaign, History
 from game.models import Category
-from .helper_functions import data_status, ok_status, failed_status, has_intersection
+from .helper_functions import *
+from .optimize import betting_limit
 
 
 class BidView(View):
@@ -30,35 +31,38 @@ class BidView(View):
         try:
             categories = Category.objects.all()
 
-            if not isinstance(data['imp']['banner']['w'], (int, float)) or not isinstance(data['imp']['banner']['h'],
-                                                                                          (int, float)) or type(
-                    data['ssp']['id']) != str:
+            if type(data['imp']['banner']['w']) != int or type(data['imp']['banner']['h']) != int or type(
+                    data['ssp']['id']) != str or type(data['click']['prob']) != str or type(
+                data['conv']['prob']) != str:
                 raise TypeError("wrong type")
+
+            float(data['click']['prob'])
+            float(data['conv']['prob'])
 
             creative = None
             for cr in Creative.objects.all():
                 if cr.width == data['imp']['banner']['w'] and cr.height == data['imp']['banner']['h']:
-                    lst = []
+                    cat = []
                     for c in cr.categories.all():
-                        lst.append(c.code)
-                    if has_intersection(data['bcat'], lst) is False:
+                        cat.append(c.code)
+                    if has_intersection(data['bcat'], cat) is False:
                         creative = cr
                         break
             if creative is None:
                 for cr in Creative.objects.all():
-                    lst = []
+                    cat = []
                     for c in cr.categories.all():
-                        lst.append(c.code)
+                        cat.append(c.code)
                     # print(data['bcat'])
-                    if has_intersection(data['bcat'], lst) is False:
+                    if has_intersection(data['bcat'], cat) is False:
                         creative = cr
                         break
             # print(creative.external_id)
 
             bid = Bid.objects.create(
                 id=data['id'],
-                click_prob=data['click']['prob'],
-                conv_prob=data['conv']['prob'],
+                click_prob=float(data['click']['prob']),
+                conv_prob=float(data['conv']['prob']),
                 site_domain=data['site']['domain'],
                 user_id=data['user']['id'],
                 price=0
@@ -69,7 +73,14 @@ class BidView(View):
             return failed_status("type error")
         except ValueError:
             return failed_status("value error")
-        bid.price = 5
-        response.append({"external_id": bid.id, "price": bid.price, "image_url": creative.url, "cat": lst})
+        bid.price = betting_limit(creative.campaign.budget, float(bid.click_prob))
+        response.append({"external_id": bid.id, "price": bid.price, "image_url": creative.url, "cat": cat})
         bid.save()
+        history = History.objects.create(
+            click_prob=bid.click_prob,
+            conv_prob=bid.conv_prob,
+            budget=creative.campaign.budget,
+            price=bid.price
+        )
+        history.save()
         return data_status(response)
