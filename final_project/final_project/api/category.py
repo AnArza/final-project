@@ -37,8 +37,6 @@ class CategoryView(View):
             return CategoryView.get_single(request, code)
         if request.method == "DELETE":
             return CategoryView.delete(request, code)
-        # if request.method == "PATCH":
-        #     return edit(request, id)
 
     @staticmethod
     def get_single(request, code):

@@ -1,5 +1,6 @@
 from django.views.generic import View
 from .helper_functions import *
+from game.models import History
 
 
 class NotifyView(View):
@@ -29,5 +30,9 @@ class NotifyView(View):
             return failed_status("missed parameter")
         except TypeError:
             return failed_status("wrong type")
-        # optimize
+        history = History.objects.latest('id')
+        history.win = win
+        if win:
+            history.budget -= price
+        history.save()
         return ok_status()

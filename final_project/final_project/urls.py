@@ -18,10 +18,11 @@ from django.urls import path
 
 from .api.category import CategoryView
 from .api.creative import CreativeView
-from .api.bid import BidView
 from .api.config import ConfigView
 from .api.campaign import CampaignView
 from .api.bid import BidView
+from .api.history import HistoryView
+from .api.notify import NotifyView
 
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
@@ -29,11 +30,11 @@ urlpatterns = [
     path("api/creatives/<int:id>/", CreativeView.check_view, name="creatives_id"),
     path("api/categories/", CategoryView.as_view(), name="categories"),
     path("api/categories/<str:code>/", CategoryView.check_view, name="categories_id"),
+    path("api/campaigns/<int:id>/", CampaignView.check_view, name="campaign_id"),
+    path("api/campaigns/", CampaignView.as_view(), name="campaign"),
     path("rtb/bid/", BidView.as_view(), name="bid"),
-    path("campaign/<int:id>/", CampaignView.check_view, name="campaign_id"),
-    path("campaign/", CampaignView.as_view(), name="campaign"),
+    path("rtb/notify/", NotifyView.as_view()),
     path("game/configure/", ConfigView.as_view(), name="config"),
     path("game/configure/delete/", ConfigView.delete, name="config_delete"),
-
-    # path("rtb/bid/", BidView.as_view())
+    path("history/", HistoryView.as_view()),
 ]
