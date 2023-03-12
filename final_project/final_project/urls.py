@@ -16,6 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 from .api.category import CategoryView
 from .api.creative import CreativeView
 from .api.config import ConfigView
@@ -35,6 +38,8 @@ urlpatterns = [
     path("rtb/bid/", BidView.as_view(), name="bid"),
     path("rtb/notify/", NotifyView.as_view()),
     path("game/configure/", ConfigView.as_view(), name="config"),
-    path("game/configure/delete/", ConfigView.delete, name="config_delete"),
     path("history/", HistoryView.as_view()),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

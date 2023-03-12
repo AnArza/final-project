@@ -3,7 +3,6 @@ from .helper_functions import *
 
 
 def betting_limit(budget, prob):
-    # answer = float()
     histories = History.objects.all()
     percentage = prob * 100
     print(percentage)
@@ -24,7 +23,6 @@ def betting_limit(budget, prob):
     if len(histories) > 1:
         history = History.objects.latest('id')
         penultimate_history = History.objects.filter(id=history.id).reverse().first()
-        print(penultimate_history)
 
         if 60 > percentage > history.click_prob * 100:
             will_be_increased = (percentage - history.click_prob * 100) // 10

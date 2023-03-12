@@ -1,21 +1,22 @@
 from django.db import models
 from django.core.validators import MinValueValidator
+from solo.models import SingletonModel
 
 
-class Config(models.Model):
-    impressions_total = models.PositiveIntegerField()
-    auction_type = models.PositiveIntegerField()
-    mode = models.CharField(max_length=10)
-    budget = models.IntegerField()
-    impression_revenue = models.PositiveIntegerField()
-    click_revenue = models.PositiveIntegerField()
-    conversion_revenue = models.PositiveIntegerField()
-    frequency_capping = models.IntegerField(validators=[MinValueValidator(1)])
+class Config(SingletonModel):
+    impressions_total = models.PositiveIntegerField(null=True)
+    auction_type = models.PositiveIntegerField(null=True)
+    mode = models.CharField(max_length=10, null=True)
+    budget = models.IntegerField(null=True)
+    impression_revenue = models.PositiveIntegerField(null=True)
+    click_revenue = models.PositiveIntegerField(null=True)
+    conversion_revenue = models.PositiveIntegerField(null=True)
+    frequency_capping = models.IntegerField(validators=[MinValueValidator(1)], null=True)
 
 
 class Campaign(models.Model):
     name = models.CharField(max_length=100)
-    budget = models.PositiveIntegerField()
+    budget = models.PositiveIntegerField(null=True)
 
 
 class Bid(models.Model):
@@ -45,8 +46,10 @@ class Creative(models.Model):
 
 
 class History(models.Model):
+    bid_request_id = models.CharField(max_length=100)
     click_prob = models.FloatField()
     conv_prob = models.FloatField()
     price = models.FloatField(validators=[MinValueValidator(0)])
     win = models.BooleanField(default=False)
-    budget = models.FloatField()
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
+    revenue = models.FloatField(default=0)

@@ -1,17 +1,16 @@
-from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic import View
-from game.models import Config
-from .helper_functions import ok_status, failed_status, data_status
 import json
 
-from .load_categories import load_categories
+from django.views.generic import View
+from game.models import Config, Campaign
+from final_project.api.load_categories import load_categories
+from .helper_functions import ok_status, failed_status, data_status
 
 
 class ConfigView(View):
-
     def get(self, request):
         try:
-            config = Config.objects.all()[0]
+            config = Config.get_solo()
+            print(config)
             data = []
             data.append(
                 {"id": config.id, "impressions_total": config.impressions_total, "auction_type": config.auction_type,
@@ -30,31 +29,23 @@ class ConfigView(View):
                 return failed_status("auction type 1 or 2")
             if data['mode'] not in ['script', 'free']:
                 return failed_status("mode is script or free")
-            config = Config.objects.create(
-                impressions_total=data['impressions_total'],
-                auction_type=data['auction_type'],
-                mode=data['mode'],
-                budget=data['budget'],
-                impression_revenue=data['impression_revenue'],
-                click_revenue=data['click_revenue'],
-                conversion_revenue=data['conversion_revenue'],
-                frequency_capping=data['conversion_revenue']
-            )
-            load_categories("static/Content-Taxonomy-1.0.xlsx")
+            config = Config.get_solo()
+            config.impressions_total = data['impressions_total']
+            config.auction_type = data['auction_type']
+            config.mode = data['mode']
+            config.budget = data['budget']
+            config.impression_revenue = data['impression_revenue']
+            config.click_revenue = data['click_revenue']
+            config.conversion_revenue = data['conversion_revenue']
+            config.frequency_capping = data['frequency_capping']
+            config.save()
+            # for free mode
+            for c in Campaign.objects.all():
+                c.budget = config.budget // len(Campaign.objects.all())
+                c.save()
+            # load_categories('static/Content-Taxonomy-1.0.xlsx')
         except KeyError:
             return failed_status("invalid_post_data")
-        # except TypeError:
-        #     return failed_status("type error happened")
-
-        config.save()
+        except TypeError:
+            return failed_status("type error happened")
         return ok_status()
-
-    @staticmethod
-    def delete(request):
-        if request.method == "DELETE":
-            try:
-                config = Config.objects.all()[0]
-            except ObjectDoesNotExist:
-                return failed_status("object_not_found")
-            config.delete()
-            return ok_status()
