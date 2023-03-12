@@ -131,6 +131,4 @@ dmypy.json
 
 # Django -- added by me
 migrations
-media
-static
 .idea
