@@ -53,3 +53,4 @@ class History(models.Model):
     win = models.BooleanField(default=False)
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     revenue = models.FloatField(default=0)
+    current_round = models.PositiveIntegerField(default=0)

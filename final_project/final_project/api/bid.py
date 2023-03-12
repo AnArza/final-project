@@ -72,6 +72,14 @@ class BidView(View):
             if bid:
                 bid.delete()
             return failed_status("value error")
+        history = History.objects.create(
+            bid_request_id=data['id'],
+            click_prob=bid.click_prob,
+            conv_prob=bid.conv_prob,
+            campaign=creative.campaign,
+            price=bid.price
+        )
+        history.save()
         bid.price = betting_limit(creative.campaign.budget, bid.click_prob)
         category = creative.categories.all()
         cats = []
@@ -82,12 +90,4 @@ class BidView(View):
              "image_url": f"http://127.0.0.1:8000{creative.url}?width={creative.width}&height={creative.height}",
              "cat": cats})
         bid.save()
-        history = History.objects.create(
-            bid_request_id=data['id'],
-            click_prob=bid.click_prob,
-            conv_prob=bid.conv_prob,
-            campaign=creative.campaign,
-            price=bid.price
-        )
-        history.save()
         return data_status(response)

@@ -43,7 +43,7 @@ class ConfigView(View):
             for c in Campaign.objects.all():
                 c.budget = config.budget // len(Campaign.objects.all())
                 c.save()
-            # load_categories('static/Content-Taxonomy-1.0.xlsx')
+            load_categories('static/Content-Taxonomy-1.0.xlsx')
         except KeyError:
             return failed_status("invalid_post_data")
         except TypeError:
