@@ -3,6 +3,7 @@ from game.models import Category
 
 
 def load_categories(file):
+    Category.objects.all().delete()
     df = pd.read_excel(file, sheet_name='Sheet1')
     data = df.iloc[:, 0].tolist()
     for i in range(len(data)):

@@ -14,7 +14,7 @@ class NotifyView(View):
             if type(win) != bool:
                 raise TypeError
             price = data['price']
-            if type(price) != float:
+            if type(price) != int:
                 raise TypeError
             click = data['click']
             if type(click) != bool:
@@ -30,9 +30,11 @@ class NotifyView(View):
             return failed_status("missed parameter")
         except TypeError:
             return failed_status("wrong type")
-        history = History.objects.latest('id')
+        history = History.objects.get(bid_request_id=data['id'])
         history.win = win
         if win:
-            history.budget -= price
+            history.campaign.budget -= price
+            history.revenue += data['revenue']
+            history.campaign.save()
         history.save()
         return ok_status()

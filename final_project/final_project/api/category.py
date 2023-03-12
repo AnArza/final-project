@@ -1,8 +1,5 @@
-import json
-
-from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import View
-from game.models import Category, Creative
+from game.models import Category
 from .helper_functions import *
 
 
@@ -30,29 +27,3 @@ class CategoryView(View):
         category.save()
         response.append({"code": category.code, "name": category.name})
         return data_status(response)
-
-    @staticmethod
-    def check_view(request, code):
-        if request.method == "GET":
-            return CategoryView.get_single(request, code)
-        if request.method == "DELETE":
-            return CategoryView.delete(request, code)
-
-    @staticmethod
-    def get_single(request, code):
-        try:
-            category = Category.objects.get(code=code)
-        except ObjectDoesNotExist:
-            return failed_status("object_not_found")
-        return data_status(
-            {"code": category.code, "name": category.name}
-        )
-
-    @staticmethod
-    def delete(request, code):
-        try:
-            category = Category.objects.get(code=code)
-        except ObjectDoesNotExist:
-            return failed_status("object_not_found")
-        category.delete()
-        return ok_status()

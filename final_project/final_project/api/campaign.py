@@ -61,7 +61,6 @@ class CampaignView(View):
         try:
             campaign = Campaign.objects.get(id=id)
         except ObjectDoesNotExist:
-
             return failed_status("obj_not_found")
         if 'name' in data:
             campaign.name = data['name']

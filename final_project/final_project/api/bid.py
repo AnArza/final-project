@@ -2,10 +2,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import View
 import json
 
-from game.models import Bid, Creative, Campaign, History
+from game.models import Bid, Creative, Campaign, History, Config
 from game.models import Category
 from .helper_functions import *
 from .optimize import betting_limit
+from django.db.models import Q
 
 
 class BidView(View):
@@ -40,24 +41,16 @@ class BidView(View):
             float(data['conv']['prob'])
 
             creative = None
-            for cr in Creative.objects.all():
+            if 'bcat' in data:
+                creatives = Creative.objects.filter(~Q(categories__code__in=data['bcat']))
+            else:
+                creatives = Creative.objects.all()
+            for cr in creatives:
                 if cr.width == data['imp']['banner']['w'] and cr.height == data['imp']['banner']['h']:
-                    cat = []
-                    for c in cr.categories.all():
-                        cat.append(c.code)
-                    if has_intersection(data['bcat'], cat) is False:
-                        creative = cr
-                        break
-            if creative is None:
-                for cr in Creative.objects.all():
-                    cat = []
-                    for c in cr.categories.all():
-                        cat.append(c.code)
-                    # print(data['bcat'])
-                    if has_intersection(data['bcat'], cat) is False:
-                        creative = cr
-                        break
-            # print(creative.external_id)
+                    creative = cr
+                    break
+            if not creative:
+                creative = creatives.first()
 
             bid = Bid.objects.create(
                 id=data['id'],
@@ -68,18 +61,32 @@ class BidView(View):
                 price=0
             )
         except KeyError:
+            if bid:
+                bid.delete()
             return failed_status("key error")
         except TypeError:
+            if bid:
+                bid.delete()
             return failed_status("type error")
         except ValueError:
+            if bid:
+                bid.delete()
             return failed_status("value error")
-        bid.price = betting_limit(creative.campaign.budget, float(bid.click_prob))
-        response.append({"external_id": bid.id, "price": bid.price, "image_url": creative.url, "cat": cat})
+        bid.price = betting_limit(creative.campaign.budget, bid.click_prob)
+        category = creative.categories.all()
+        cats = []
+        for c in category:
+            cats.append(c.code)
+        response.append(
+            {"external_id": bid.id, "price": bid.price,
+             "image_url": f"http://127.0.0.1:8000{creative.url}?width={creative.width}&height={creative.height}",
+             "cat": cats})
         bid.save()
         history = History.objects.create(
+            bid_request_id=data['id'],
             click_prob=bid.click_prob,
             conv_prob=bid.conv_prob,
-            budget=creative.campaign.budget,
+            campaign=creative.campaign,
             price=bid.price
         )
         history.save()
