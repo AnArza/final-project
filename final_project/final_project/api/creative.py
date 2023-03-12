@@ -37,12 +37,15 @@ class CreativeView(View):
             )
             for cat in data['categories']:
                 for cr in Creative.objects.filter(id__lt=creative.id):
-                    print(Category.objects.get(code=cat['code']))
-                    if Category.objects.get(code=cat['code']) not in cr.categories.all():
-                        creative.categories.add(Category.objects.get(code=cat['code']))
-                    else:
+                    try:
+                        if Category.objects.get(code=cat['code']) not in cr.categories.all():
+                            creative.categories.add(Category.objects.get(code=cat['code']))
+                        else:
+                            creative.delete()
+                            return failed_status("category not available")
+                    except ObjectDoesNotExist:
                         creative.delete()
-                        return failed_status("category not available")
+                        return failed_status("no category with that code")
             if not Creative.objects.all():
                 for cat in data['categories']:
                     creative.categories.add(Category.objects.get(code=cat['code']))
@@ -69,8 +72,12 @@ class CreativeView(View):
 
             })
         except KeyError:
+            if creative:
+                creative.delete()
             return failed_status("missed parameter")
         except TypeError:
+            if creative:
+                creative.delete()
             return failed_status("wrong type")
         creative.save()
         return data_status(response)

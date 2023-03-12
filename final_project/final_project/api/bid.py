@@ -61,10 +61,16 @@ class BidView(View):
                 price=0
             )
         except KeyError:
+            if bid:
+                bid.delete()
             return failed_status("key error")
         except TypeError:
+            if bid:
+                bid.delete()
             return failed_status("type error")
         except ValueError:
+            if bid:
+                bid.delete()
             return failed_status("value error")
         bid.price = betting_limit(creative.campaign.budget, bid.click_prob)
         category = creative.categories.all()

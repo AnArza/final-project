@@ -32,7 +32,6 @@ urlpatterns = [
     path("api/creatives/", CreativeView.as_view(), name="creatives"),
     path("api/creatives/<int:id>/", CreativeView.check_view, name="creatives_id"),
     path("api/categories/", CategoryView.as_view(), name="categories"),
-    path("api/categories/<str:code>/", CategoryView.check_view, name="categories_id"),
     path("api/campaigns/<int:id>/", CampaignView.check_view, name="campaign_id"),
     path("api/campaigns/", CampaignView.as_view(), name="campaign"),
     path("rtb/bid/", BidView.as_view(), name="bid"),
