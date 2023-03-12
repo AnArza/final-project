@@ -23,10 +23,10 @@ from .api.campaign import CampaignView
 from .api.bid import BidView
 from .api.history import HistoryView
 from .api.notify import NotifyView
-# from .api.login_register import log_reg, create_user, login_view, success_view, home
+from .api.login_register import log_reg, create_user, login_view, success_view, home
 
 urlpatterns = [
-        path("admin/", admin.site.urls, name="admin"),
+    path("admin/", admin.site.urls, name="admin"),
     path("api/creatives/", CreativeView.as_view(), name="creatives"),
     path("api/creatives/<int:id>/", CreativeView.check_view, name="creatives_id"),
     path("api/categories/", CategoryView.as_view(), name="categories"),
@@ -38,11 +38,11 @@ urlpatterns = [
     path("game/configure/", ConfigView.as_view(), name="config"),
     path("game/configure/delete/", ConfigView.delete, name="config_delete"),
     path("history/", HistoryView.as_view()),
-    # path('', log_reg, name="log_reg"),
-    # path('create_user/', create_user, name='create_user'),
-    # path('login/', login_view, name='login'),
-    # path('create_user/home/', success_view, name="success"),
-    # path('home/', home, name="home")
+    path('', log_reg, name="log_reg"),
+    path('create_user/', create_user, name='create_user'),
+    path('login/', login_view, name='login'),
+    path('success/', success_view, name="success"),
+    path('home/', home, name="home")
 
     # path("rtb/bid/", BidView.as_view())
 ]
