@@ -30,20 +30,20 @@ class CampaignTest(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         response_json = response.json()
+        response_json = json.dumps(response_json)
         response_json = json.loads(response_json)
         self.assertEqual(len(response_json), len(self.objects))
         for i, obj in enumerate(self.objects):
-            self.assertEqual(response_json['data'][i]['name'], obj['name'])
-            self.assertEqual(response_json['data'][i]['budget'], obj['budget'])
+            self.assertEqual(response_json[i]['name'], obj['name'])
+            self.assertEqual(response_json[i]['budget'], obj['budget'])
 
     def test_get_object_by_id(self):
         obj = Campaign.objects.first()
         response = self.client.get(f'{self.url}{obj.id}/')
         response_json = response.json()
-        response_json = json.loads(response_json)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response_json['data']['name'], obj.name)
-        self.assertEqual(response_json['data']['budget'], obj.budget)
+        self.assertEqual(response_json['name'], obj.name)
+        self.assertEqual(response_json['budget'], obj.budget)
 
     def test_update_object(self):
         obj = Campaign.objects.first()
