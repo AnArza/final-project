@@ -41,4 +41,4 @@ class NotifyView(View):
             history.save()
         except ObjectDoesNotExist:
             return failed_status("does not exist")
-        return ok_status()
+        return notify_status()

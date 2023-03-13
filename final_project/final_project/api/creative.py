@@ -3,7 +3,7 @@ from django.core.files.storage import default_storage
 from django.views.generic import View
 import json
 from game.models import Creative, Campaign, Category
-from .helper_functions import data_status, ok_status, failed_status
+from .helper_functions import *
 import base64
 from django.core.files.base import ContentFile
 from PIL import Image
@@ -17,11 +17,13 @@ class CreativeView(View):
         for creative in creatives:
             data.append({
                 'id': creative.id,
+                'url': creative.url,
                 'external_id': creative.external_id,
                 'name': creative.name,
                 'campaign': {
                     'name': creative.campaign.name,
-                    'budget': creative.campaign.budget
+                    'budget': creative.campaign.budget,
+
                 }
             })
         return data_status(data)
@@ -80,7 +82,7 @@ class CreativeView(View):
                 creative.delete()
             return failed_status("wrong type")
         creative.save()
-        return data_status(response)
+        return data_status_creative_campaign(response)
 
     @staticmethod
     def check_view(request, id):

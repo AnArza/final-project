@@ -3,7 +3,7 @@ from django.views.generic import View
 import json
 
 from game.models import Campaign
-from .helper_functions import data_status, ok_status, failed_status, success_status_post, data_status_post, success_status_delete
+from .helper_functions import *
 
 
 class CampaignView(View):
@@ -27,7 +27,7 @@ class CampaignView(View):
             return failed_status("xinvalid_post_data")
         campaign.save()
         response.append({'id': campaign.id, 'name': campaign.name, 'budget': campaign.budget})
-        return data_status_post(response)
+        return data_status_creative_campaign(response)
 
     @staticmethod
     def check_view(request, id):
