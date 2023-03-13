@@ -7,7 +7,7 @@ class Config(SingletonModel):
     impressions_total = models.PositiveIntegerField(null=True)
     auction_type = models.PositiveIntegerField(null=True)
     mode = models.CharField(max_length=10, null=True)
-    budget = models.IntegerField(null=True)
+    budget = models.FloatField(null=True)
     impression_revenue = models.PositiveIntegerField(null=True)
     click_revenue = models.PositiveIntegerField(null=True)
     conversion_revenue = models.PositiveIntegerField(null=True)
@@ -16,7 +16,7 @@ class Config(SingletonModel):
 
 class Campaign(models.Model):
     name = models.CharField(max_length=100)
-    budget = models.PositiveIntegerField(null=True)
+    budget = models.FloatField(null=True)
 
 
 class Bid(models.Model):

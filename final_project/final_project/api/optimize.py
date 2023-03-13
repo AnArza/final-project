@@ -2,6 +2,7 @@ from game.models import History, Config
 from .helper_functions import *
 from django.db.models import Q
 
+
 def betting_limit(budget, prob):
     # answer = float()
     histories = History.objects.all()
@@ -41,7 +42,8 @@ def betting_limit(budget, prob):
             answer += budget_for_round * will_be_increased / 100
             return answer
         elif not penultimate_history.win and penultimate_history.click_prob == prob:
-            answer += budget_for_round * 4 / 100
+            if answer + budget_for_round * 4 / 100 <= budget_for_round:
+                answer += budget_for_round * 4 / 100
             return answer
 
     return answer

@@ -29,12 +29,12 @@ class ConfigView(View):
                 return failed_status("auction type 1 or 2")
             if data['mode'] not in ['script', 'free']:
                 return failed_status("mode is script or free")
-            Campaign.objects.all().delete()
+            # Campaign.objects.all().delete()
             config = Config.get_solo()
             config.impressions_total = data['impressions_total']
             config.auction_type = data['auction_type']
             config.mode = data['mode']
-            config.budget = data['budget']
+            config.budget = float(data['budget'])
             config.impression_revenue = data['impression_revenue']
             config.click_revenue = data['click_revenue']
             config.conversion_revenue = data['conversion_revenue']
@@ -44,7 +44,7 @@ class ConfigView(View):
             for c in Campaign.objects.all():
                 c.budget = config.budget // len(Campaign.objects.all())
                 c.save()
-            load_categories('static/Content-Taxonomy-1.0.xlsx')
+            # load_categories('static/Content-Taxonomy-1.0.xlsx')
         except KeyError:
             return failed_status("invalid_post_data")
         except TypeError:
