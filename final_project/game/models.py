@@ -16,7 +16,7 @@ class Config(SingletonModel):
 
 class Campaign(models.Model):
     name = models.CharField(max_length=100)
-    budget = models.FloatField(null=True)
+    budget = models.FloatField(validators=[MinValueValidator(0)], null=True)
 
 
 class Bid(models.Model):
