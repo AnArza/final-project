@@ -29,6 +29,7 @@ class ConfigView(View):
                 return failed_status("auction type 1 or 2")
             if data['mode'] not in ['script', 'free']:
                 return failed_status("mode is script or free")
+            Campaign.objects.all().delete()
             config = Config.get_solo()
             config.impressions_total = data['impressions_total']
             config.auction_type = data['auction_type']

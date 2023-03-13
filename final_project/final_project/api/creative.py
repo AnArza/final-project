@@ -70,7 +70,7 @@ class CreativeView(View):
                     'id': creative.campaign.id,
                     'name': creative.campaign.name
                 },
-                'url': file_url
+                'url': f"http://127.0.0.1:8000{file_url}"
 
             })
         except KeyError:
