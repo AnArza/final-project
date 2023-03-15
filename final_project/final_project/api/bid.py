@@ -15,27 +15,25 @@ class BidView(View):
         bids = Bid.objects.all()
         data = []
         for bid in bids:
-            # categories = Category.objects.filter(bid_id=bid.id)
             data.append({'id': bid.id,
-                         # 'external_id': bid.external_id,
                          'click_prob': bid.click_prob,
                          'conv_prob': bid.conv_prob,
                          'site_domain': bid.site_domain,
                          'user_id': bid.user_id,
-                         'price': bid.price
+                         'price': str(bid.price)
                          })
         return data_status(data)
 
     def post(self, request):
-        data = json.loads(request.body)
-        response = []
+        data = json.loads(request.body.decode())
         try:
-            categories = Category.objects.all()
+
+            bid = None
 
             if type(data['imp']['banner']['w']) != int or type(data['imp']['banner']['h']) != int or type(
                     data['ssp']['id']) != str or type(data['click']['prob']) != str or type(
                 data['conv']['prob']) != str:
-                raise TypeError("wrong type")
+                raise TypeError
 
             float(data['click']['prob'])
             float(data['conv']['prob'])
@@ -43,6 +41,9 @@ class BidView(View):
             creative = None
             if 'bcat' in data:
                 creatives = Creative.objects.filter(~Q(categories__code__in=data['bcat']))
+                for bcat in data['bcat']:
+                    if len(bcat) <= 5:
+                        creatives = creatives.filter(~Q(categories__code__startswith=bcat + '-'))
             else:
                 creatives = Creative.objects.all()
             for cr in creatives:
@@ -60,18 +61,22 @@ class BidView(View):
                 user_id=data['user']['id'],
                 price=0
             )
+            bid.price = betting_limit(creative.campaign.budget, bid.click_prob)
+
         except KeyError:
             if bid:
                 bid.delete()
-            return failed_status("key error")
-        except TypeError:
+            return ok_status()
+        except TypeError as t:
+            print(t)
             if bid:
                 bid.delete()
-            return failed_status("type error")
+            return ok_status()
         except ValueError:
             if bid:
                 bid.delete()
-            return failed_status("value error")
+            return ok_status()
+
         history = History.objects.create(
             bid_request_id=data['id'],
             click_prob=bid.click_prob,
@@ -80,14 +85,13 @@ class BidView(View):
             price=bid.price
         )
         history.save()
-        bid.price = betting_limit(creative.campaign.budget, bid.click_prob)
+
         category = creative.categories.all()
         cats = []
         for c in category:
             cats.append(c.code)
-        response.append(
-            {"external_id": bid.id, "price": bid.price,
-             "image_url": f"http://127.0.0.1:8000{creative.url}?width={creative.width}&height={creative.height}",
-             "cat": cats})
+        response = {"external_id": bid.id, "price": str(bid.price),
+                    "image_url": f"http://192.168.8.208:8000{creative.url}?width={creative.width}&height={creative.height}",
+                    "cat": cats}
         bid.save()
         return data_status(response)

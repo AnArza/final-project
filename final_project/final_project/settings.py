@@ -28,7 +28,7 @@ SECRET_KEY = "django-insecure-h0!r+3$hbbgw=en0jo8gp^@7ow&j+1$-=u&3@7cm(u5in$@ufe
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', 'localhost:3000', '127.0.0.1']
+ALLOWED_HOSTS = ['localhost', 'localhost:3000', '127.0.0.1', '0.0.0.0', '192.168.8.208']
 
 # Application definition
 
@@ -136,9 +136,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = "static/"
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-# if not DEBUG:
-#     STATIC_ROOT = ''
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static")
@@ -156,7 +153,7 @@ CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
 ]
 
-CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_METHODS = [
     "DELETE",
     "GET",
@@ -165,5 +162,3 @@ CORS_ALLOW_METHODS = [
     "POST",
     "PUT",
 ]
-
-# AUTHENTICATION_BACKENDS = ['path.to.APIBackend', 'django.contrib.auth.backends.ModelBackend', ]

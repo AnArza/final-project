@@ -34,7 +34,6 @@ def notify_status():
 #     return response
 
 
-
 # used
 def data_status_creative_campaign(data):
     return HttpResponse(
@@ -42,6 +41,7 @@ def data_status_creative_campaign(data):
         status=201,
         content_type="application/json"
     )
+
 
 def data_status_post(data):
     return HttpResponse(

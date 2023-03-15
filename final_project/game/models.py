@@ -7,7 +7,7 @@ class Config(SingletonModel):
     impressions_total = models.PositiveIntegerField(null=True)
     auction_type = models.PositiveIntegerField(null=True)
     mode = models.CharField(max_length=10, null=True)
-    budget = models.FloatField(null=True)
+    budget = models.DecimalField(validators=[MinValueValidator(0)], null=True, max_digits=6, decimal_places=2)
     impression_revenue = models.PositiveIntegerField(null=True)
     click_revenue = models.PositiveIntegerField(null=True)
     conversion_revenue = models.PositiveIntegerField(null=True)
@@ -16,7 +16,7 @@ class Config(SingletonModel):
 
 class Campaign(models.Model):
     name = models.CharField(max_length=100)
-    budget = models.FloatField(validators=[MinValueValidator(0)], null=True)
+    budget = models.DecimalField(validators=[MinValueValidator(0)], null=True, max_digits=6, decimal_places=2)
 
 
 class Bid(models.Model):
@@ -25,7 +25,7 @@ class Bid(models.Model):
     conv_prob = models.FloatField()
     site_domain = models.CharField(max_length=100)
     user_id = models.CharField(max_length=100)
-    price = models.FloatField(validators=[MinValueValidator(0)])
+    price = models.DecimalField(validators=[MinValueValidator(0)], max_digits=6, decimal_places=2)
 
 
 class Category(models.Model):
@@ -49,7 +49,7 @@ class History(models.Model):
     bid_request_id = models.CharField(max_length=100)
     click_prob = models.FloatField()
     conv_prob = models.FloatField()
-    price = models.FloatField(validators=[MinValueValidator(0)])
+    price = models.DecimalField(validators=[MinValueValidator(0)], max_digits=6, decimal_places=2)
     win = models.BooleanField(default=False)
     campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE)
     revenue = models.FloatField(default=0)

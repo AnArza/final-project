@@ -22,9 +22,10 @@ class CreativeView(View):
                 'name': creative.name,
                 'campaign': {
                     'name': creative.campaign.name,
-                    'budget': creative.campaign.budget,
+                    'budget': str(creative.campaign.budget),
 
-                }
+                },
+                'categories': [cat.code for cat in creative.categories.all()]
             })
         return data_status(data)
 
@@ -32,6 +33,7 @@ class CreativeView(View):
         data = json.loads(request.body)
         response = []
         try:
+            creative = None
             creative = Creative.objects.create(
                 external_id=data['external_id'],
                 name=data['name'],
@@ -44,10 +46,12 @@ class CreativeView(View):
                             creative.categories.add(Category.objects.get(code=cat['code']))
                         else:
                             creative.delete()
-                            return failed_status("category not available")
+                            # ok status?
+                            return ok_status()
                     except ObjectDoesNotExist:
                         creative.delete()
-                        return failed_status("no category with that code")
+                        # ok status?
+                        return ok_status()
             if not Creative.objects.all():
                 for cat in data['categories']:
                     creative.categories.add(Category.objects.get(code=cat['code']))
@@ -66,11 +70,12 @@ class CreativeView(View):
                 'external_id': creative.external_id,
                 'name': creative.name,
                 'categories': [{"id": c.id, "code": c.code} for c in creative.categories.all()],
+
                 'campaign': {
                     'id': creative.campaign.id,
                     'name': creative.campaign.name
                 },
-                'url': f"http://127.0.0.1:8000{file_url}"
+                'url': f"http://192.168.0.16:8000{file_url}"
 
             })
         except KeyError:

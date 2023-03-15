@@ -16,6 +16,8 @@ def betting_limit(budget, prob):
         print(History.objects.filter(id=history.id).reverse().first().id)
     history.save()
     rest_rounds = Config.get_solo().impressions_total - history.current_round + 1
+    if rest_rounds == 0:
+        rest_rounds = 1
     budget_for_round = float(budget) / float(rest_rounds)
     # print(budget_for_round)
     percentage = prob * 100
@@ -29,7 +31,7 @@ def betting_limit(budget, prob):
         answer1 = budget_for_round
         answer2 = budget_for_round
     else:
-        failed_status("percentage is either negative or greater than 100")
+        return failed_status("percentage is either negative or greater than 100")
     answer = (answer2 + answer1) / 2
     # we need to get answer from ui
 

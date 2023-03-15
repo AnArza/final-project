@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import View
 import json
+from decimal import Decimal
 
 from game.models import Campaign
 from .helper_functions import *
@@ -12,7 +13,7 @@ class CampaignView(View):
         campaigns = Campaign.objects.all()
         data = []
         for campaign in campaigns:
-            data.append({'id': campaign.id, 'name': campaign.name, 'budget': campaign.budget})
+            data.append({'id': campaign.id, 'name': campaign.name, 'budget': str(campaign.budget)})
         return data_status(data)
 
     def post(self, request):
@@ -21,12 +22,13 @@ class CampaignView(View):
         if 'name' in data and 'budget' in data:
             campaign = Campaign.objects.create(
                 name=data['name'],
-                budget=data['budget']
+                budget=Decimal(data['budget'])
             )
         else:
-            return failed_status("xinvalid_post_data")
+            # makes no sense
+            return ok_status()
         campaign.save()
-        response.append({'id': campaign.id, 'name': campaign.name, 'budget': campaign.budget})
+        response.append({'id': campaign.id, 'name': campaign.name, 'budget': str(campaign.budget)})
         return data_status_creative_campaign(response)
 
     @staticmethod
@@ -44,7 +46,7 @@ class CampaignView(View):
             campaign = Campaign.objects.get(id=id)
         except ObjectDoesNotExist:
             return failed_status("obj_not_found")
-        return data_status({'id': campaign.id, 'name': campaign.name, 'budget': campaign.budget})
+        return data_status({'id': campaign.id, 'name': campaign.name, 'budget': str(campaign.budget)})
 
     @staticmethod
     def delete(request, id):

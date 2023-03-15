@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 
 from django.views.generic import View
 from game.models import Config, Campaign
@@ -14,7 +15,7 @@ class ConfigView(View):
             data = []
             data.append(
                 {"id": config.id, "impressions_total": config.impressions_total, "auction_type": config.auction_type,
-                 "mode": config.mode, "budget": config.budget,
+                 "mode": config.mode, "budget": str(config.budget),
                  "impression_revenue": config.impression_revenue, "click_revenue": config.click_revenue,
                  "conversion_revenue": config.conversion_revenue, "frequency_capping": config.frequency_capping}
             )
@@ -34,7 +35,7 @@ class ConfigView(View):
             config.impressions_total = data['impressions_total']
             config.auction_type = data['auction_type']
             config.mode = data['mode']
-            config.budget = float(data['budget'])
+            config.budget = Decimal(data['budget'])
             config.impression_revenue = data['impression_revenue']
             config.click_revenue = data['click_revenue']
             config.conversion_revenue = data['conversion_revenue']
